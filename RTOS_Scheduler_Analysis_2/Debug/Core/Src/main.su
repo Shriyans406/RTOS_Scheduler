@@ -1,6 +1,9 @@
-../Core/Src/main.c:70:5:main	48	static
-../Core/Src/main.c:145:6:SystemClock_Config	72	static
-../Core/Src/main.c:185:13:MX_USART1_UART_Init	8	static
-../Core/Src/main.c:218:13:MX_GPIO_Init	16	static
-../Core/Src/main.c:244:6:StartDefaultTask	16	static
-../Core/Src/main.c:259:6:Error_Handler	4	static,ignoring_inline_asm
+../Core/Src/main.c:77:5:main	104	static
+../Core/Src/main.c:160:6:SystemClock_Config	72	static
+../Core/Src/main.c:200:13:MX_USART1_UART_Init	8	static
+../Core/Src/main.c:233:13:MX_GPIO_Init	16	static
+../Core/Src/main.c:249:6:MX_FREERTOS_Init	4	static
+../Core/Src/main.c:265:6:StartTaskLow	24	static
+../Core/Src/main.c:291:6:StartTaskNormal	32	static
+../Core/Src/main.c:318:6:StartTaskHigh	16	static
+../Core/Src/main.c:342:6:Error_Handler	4	static,ignoring_inline_asm

@@ -21,6 +21,9 @@
 #include "FreeRTOS.h"
 #include "task.h"
 #include "main.h"
+#include "freertos.h"
+#include <stdio.h>
+
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -66,10 +69,32 @@ void vApplicationGetIdleTaskMemory( StaticTask_t **ppxIdleTaskTCBBuffer, StackTy
   *pulIdleTaskStackSize = configMINIMAL_STACK_SIZE;
   /* place for user code */
 }
+
 /* USER CODE END GET_IDLE_TASK_MEMORY */
 
 /* Private application code --------------------------------------------------*/
 /* USER CODE BEGIN Application */
-
+/*void StartTaskLow(void *argument){
+	for(;;)
+	{
+	    printf("LOW Task Running\r\n");
+	    osDelay(1000);
+	}
+}
+void StartTaskNormal(void *argument){
+	for(;;)
+	{
+	    printf("NORMAL Task Running\r\n");
+	    osDelay(500);
+	}
+}
+void StartTaskHigh(void *argument){
+	for(;;)
+	{
+	    printf("HIGH Task Running\r\n");
+	    osDelay(200);
+	}
+}
+*/
 /* USER CODE END Application */
 

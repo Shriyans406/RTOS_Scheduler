@@ -59,6 +59,12 @@ RTOS_Scheduler_Analysis_2.list \
 OBJCOPY_HEX += \
 RTOS_Scheduler_Analysis_2.hex \
 
+OBJCOPY_BIN += \
+RTOS_Scheduler_Analysis_2.bin \
+
+OBJCOPY_VERILOG += \
+RTOS_Scheduler_Analysis_2.verilog \
+
 
 # All Target
 all: main-build
@@ -87,12 +93,22 @@ RTOS_Scheduler_Analysis_2.hex: $(EXECUTABLES) makefile objects.list $(OPTIONAL_T
 	@echo 'Finished building: $@'
 	@echo ' '
 
+RTOS_Scheduler_Analysis_2.bin: $(EXECUTABLES) makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-objcopy  -O binary $(EXECUTABLES) "RTOS_Scheduler_Analysis_2.bin"
+	@echo 'Finished building: $@'
+	@echo ' '
+
+RTOS_Scheduler_Analysis_2.verilog: $(EXECUTABLES) makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-objcopy  -O verilog $(EXECUTABLES) "RTOS_Scheduler_Analysis_2.verilog"
+	@echo 'Finished building: $@'
+	@echo ' '
+
 # Other Targets
 clean:
-	-$(RM) RTOS_Scheduler_Analysis_2.elf RTOS_Scheduler_Analysis_2.hex RTOS_Scheduler_Analysis_2.list RTOS_Scheduler_Analysis_2.map default.size.stdout
+	-$(RM) RTOS_Scheduler_Analysis_2.bin RTOS_Scheduler_Analysis_2.elf RTOS_Scheduler_Analysis_2.hex RTOS_Scheduler_Analysis_2.list RTOS_Scheduler_Analysis_2.map RTOS_Scheduler_Analysis_2.verilog default.size.stdout
 	-@echo ' '
 
-secondary-outputs: $(SIZE_OUTPUT) $(OBJDUMP_LIST) $(OBJCOPY_HEX)
+secondary-outputs: $(SIZE_OUTPUT) $(OBJDUMP_LIST) $(OBJCOPY_HEX) $(OBJCOPY_BIN) $(OBJCOPY_VERILOG)
 
 fail-specified-linker-script-missing:
 	@echo 'Error: Cannot find the specified linker script. Check the linker settings in the build configuration.'

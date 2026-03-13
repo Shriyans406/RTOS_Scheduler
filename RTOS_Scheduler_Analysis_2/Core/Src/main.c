@@ -20,6 +20,8 @@
 #include "main.h"
 #include "cmsis_os.h"
 #include <stdio.h>
+#include "freertos.h"
+
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
@@ -43,7 +45,10 @@
 /* Private variables ---------------------------------------------------------*/
 UART_HandleTypeDef huart1;
 
-osThreadId DefaultTaskHandle;
+osThreadId TaskLowHandle;
+osThreadId TaskNormalHandle;
+osThreadId TaskHighHandle;
+osMessageQId dataQueueHandle;
 /* USER CODE BEGIN PV */
 
 /* USER CODE END PV */
@@ -52,7 +57,9 @@ osThreadId DefaultTaskHandle;
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_USART1_UART_Init(void);
-void StartDefaultTask(void const * argument);
+void StartTaskLow(void const * argument);
+void StartTaskNormal(void const * argument);
+void StartTaskHigh(void const * argument);
 
 /* USER CODE BEGIN PFP */
 
@@ -114,9 +121,17 @@ int main(void)
   /* USER CODE END RTOS_QUEUES */
 
   /* Create the thread(s) */
-  /* definition and creation of DefaultTask */
-  osThreadDef(DefaultTask, StartDefaultTask, osPriorityNormal, 0, 128);
-  DefaultTaskHandle = osThreadCreate(osThread(DefaultTask), NULL);
+  /* definition and creation of TaskLow */
+  osThreadDef(TaskLow, StartTaskLow, osPriorityLow, 0, 128);
+  TaskLowHandle = osThreadCreate(osThread(TaskLow), NULL);
+
+  /* definition and creation of TaskNormal */
+  osThreadDef(TaskNormal, StartTaskNormal, osPriorityNormal, 0, 128);
+  TaskNormalHandle = osThreadCreate(osThread(TaskNormal), NULL);
+
+  /* definition and creation of TaskHigh */
+  osThreadDef(TaskHigh, StartTaskHigh, osPriorityHigh, 0, 128);
+  TaskHighHandle = osThreadCreate(osThread(TaskHigh), NULL);
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
@@ -231,26 +246,94 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
+void MX_FREERTOS_Init(void) {
+	osThreadId TaskLowHandle;
+	osThreadId TaskNormalHandle;
+	osThreadId TaskHighHandle;
+	osMessageQId dataQueueHandle;}
 
 /* USER CODE END 4 */
 
-/* USER CODE BEGIN Header_StartDefaultTask */
+/* USER CODE BEGIN Header_StartTaskLow */
 /**
-  * @brief  Function implementing the DefaultTask thread.
+  * @brief  Function implementing the TaskLow thread.
   * @param  argument: Not used
   * @retval None
   */
-/* USER CODE END Header_StartDefaultTask */
-void StartDefaultTask(void const * argument)
+/* USER CODE END Header_StartTaskLow */
+
+void StartTaskLow(void const * argument)
 {
   /* USER CODE BEGIN 5 */
   /* Infinite loop */
-  for(;;)
-  {
-    osDelay(1);
-  }
+	for(;;)
+	{
+	    static uint32_t prevTick = 0;
+	    uint32_t currentTick = osKernelSysTick();
+	    uint32_t delta = currentTick - prevTick;
+
+	    printf("LOW   | Tick: %lu | Delta: %lu ms\r\n", currentTick, delta);
+
+	    prevTick = currentTick;
+
+	    osDelay(1000);
+	}
   /* USER CODE END 5 */
 }
+
+/* USER CODE BEGIN Header_StartTaskNormal */
+/**
+* @brief Function implementing the TaskNormal thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_StartTaskNormal */
+void StartTaskNormal(void const * argument)
+{
+  /* USER CODE BEGIN StartTaskNormal */
+  /* Infinite loop */
+	for(;;)
+	{
+	    osEvent event;
+
+	    event = osMessageGet(dataQueueHandle, osWaitForever);
+
+	    if(event.status == osEventMessage)
+	    {
+	        uint32_t received = event.value.v;
+
+	        printf("NORMAL received: %lu\r\n", received);
+	    }
+	}
+  /* USER CODE END StartTaskNormal */
+}
+
+/* USER CODE BEGIN Header_StartTaskHigh */
+/**
+* @brief Function implementing the TaskHigh thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_StartTaskHigh */
+void StartTaskHigh(void const * argument)
+{
+  /* USER CODE BEGIN StartTaskHigh */
+  /* Infinite loop */
+	for(;;)
+	{
+	    static uint32_t counter = 0;
+	    counter++;
+
+	    if(counter % 50000 == 0)
+	    {
+	        printf("HIGH RUNNING: %lu\r\n", counter);
+	    }
+
+	    osDelay(1);   // 1 ms block → prevents starvation
+	}
+  /* USER CODE END StartTaskHigh */
+}
+
 
 /**
   * @brief  This function is executed in case of error occurrence.
